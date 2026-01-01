@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SAIF DATA COLLECT - Android</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background: #0b1424; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 10px; width: 350px; text-align: center; }
+        .niti { font-size: 2rem; font-weight: bold; margin-bottom: 20px; }
+        .n { color: green; } .iti { color: red; }
+        input, textarea { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: black; color: white; padding: 10px; width: 100%; border: none; cursor: pointer; border-radius: 5px; }
+        #entryArea { display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="niti"><span class="n">N</span><span class="iti">ITI</span> DATA</div>
+        
+        <!-- Login Form -->
+        <div id="loginArea">
+            <input type="text" id="idIn" placeholder="ID">
+            <input type="password" id="pinIn" placeholder="PIN">
+            <button onclick="checkLogin()">LOGIN</button>
+        </div>
+
+        <!-- Data Entry Form -->
+        <div id="entryArea">
+            <p>Logged in: <b id="userLabel"></b></p>
+            <textarea id="msgIn" placeholder="Type data here..." rows="4"></textarea>
+            <button onclick="sendData()">SEND TO WINDOWS</button>
+        </div>
+    </div>
+
+<script>
+    // PASTE YOUR KEYS HERE
+    const supabase = supabase.createClient('YOUR_URL_HERE', 'YOUR_KEY_HERE');
+
+    const users = [{id:"1101", pin:"2026"}, {id:"505", pin:"77"}, {id:"9", pin:"000"}];
+    let currentID = "";
+
+    function checkLogin() {
+        const id = document.getElementById('idIn').value;
+        const pin = document.getElementById('pinIn').value;
+        if(users.find(u => u.id === id && u.pin === pin)) {
+            currentID = id;
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('entryArea').style.display = 'block';
+            document.getElementById('userLabel').innerText = id;
+        } else { alert("Wrong ID or PIN"); }
+    }
+
+    async function sendData() {
+        const txt = document.getElementById('msgIn').value;
+        const { error } = await supabase.from('collected_data').insert([{ user_id: currentID, content: txt }]);
+        if (error) alert("Error: " + error.message);
+        else { alert("Sent!"); document.getElementById('msgIn').value = ""; }
+    }
+</script>
+</body>
+</html>
